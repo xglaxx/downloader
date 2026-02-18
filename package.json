@@ -1,0 +1,19 @@
+{
+   "name": "downloader-file",
+   "version": "0.0.0-9",
+   "type": "module",
+   "bin": {
+      "downloader": "./src/cli/test.js"
+   },
+   "description": "",
+   "main": "index.js",
+   "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1"
+   },
+   "keywords": [],
+   "author": "",
+   "license": "ISC",
+   "dependencies": {
+      "file-type": "^21.3.0"
+   }
+}
