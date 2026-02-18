@@ -1,5 +1,8 @@
+#!/usr/bin/env node
 import Downloader from "./index.js";
-const [_, __, url, output] = process.agrv;
+const pross = process.argv;
+const url = (pross[2] || "");
+const output = (pross[3] || "");
 (async () => {
    if (!/https:\/\//.test(url)) throw url;
    
@@ -10,7 +13,10 @@ const [_, __, url, output] = process.agrv;
       process.stdout.write(`Progresso: ${percent}% | ETA: ${eta.toFixed(1)}s | Velocidade: ${(speed / 1024 / 1024).toFixed(2)} MB/s `);
    });
    job.on("completed", (data) => {
-      console.log("\nDownload Concluido:", data);
+      console.warn("\nDownload Concluido:", data);
+   });
+   job.on("error", (err) => {
+      console.warn("\nDownload Não foi concluído:", err);
    });
    await job.start();
    process.exit();

@@ -3,7 +3,7 @@
    "version": "0.0.0-9",
    "type": "module",
    "bin": {
-      "downloader": "./src/cli/test.js"
+      "downloader": "src/cli/test.js"
    },
    "description": "",
    "main": "index.js",
@@ -15,5 +15,14 @@
    "license": "ISC",
    "dependencies": {
       "file-type": "^21.3.0"
-   }
+   },
+   "devDependencies": {},
+   "repository": {
+      "type": "git",
+      "url": "git+https://github.com/xglaxx/downloader.git"
+   },
+   "bugs": {
+      "url": "https://github.com/xglaxx/downloader/issues"
+   },
+   "homepage": "https://github.com/xglaxx/downloader#readme"
 }
