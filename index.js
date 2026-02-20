@@ -16,28 +16,29 @@ export default class Downloader extends EventEmitter {
       }
    }
    
-   _renderEv(on, obj) {
-      for (const tag of ["progress", "verified", "completed", "error"]) {
-         on(tag, (res) => {
-            this.emit(tag, Object.assign({}, res, obj));
-         });
-      }
-   }
-   
    async start() {
+      const tagEvent = ["progress", "verified", "completed", "error"];
       if (this.sequenceDownloader.length) {
          return Promise.all(this.sequenceDownloader.map((job, index) => {
             if (!/https:\/\//.test(job?.url)) return Promise.reject({ message: "A url não foi identificado.", error: job });
             
             const jobDl = DownloaderJob(Object.assign({}, this, job));
-            this._renderEv(jobDl.on, job);
+            for (const tag of tagEvent) {
+               jobDl.on(tag, (res) => {
+                  this.emit(tag, Object.assign({}, res, job));
+               });
+            }
             return () => jobDl.start().finally(() => this.sequenceDownloader.splice(1, index));
          }));
       } else {
          const job = DownloaderJob(this);
          if (!/https:\/\//.test(this.url)) return Promise.reject({ message: "A url não foi identificado.", error: this });
          
-         this._renderEv(job.on, { url: this.url, output: this.output });
+         for (const tag of tagEvent) {
+            jobDl.on(tag, (res) => {
+               this.emit(tag, Object.assign({}, res, { url: this.url, output: job.output }));
+            });
+         }
          return job.start();
       }
    }
