@@ -62,13 +62,10 @@ export default class HttpDataSource extends DataSource {
          if (range) headers.Range = `bytes=${range.start}-${range.end}`;
          
          const req = https.get(this.url, { headers }, res => {
-            if (range && res.statusCode !== 206) {
-               reject({ message: 'Servidor ignorou a solicitação de alcance.', ...res });
-            }
-            
             resolve(res);
          });
          req.on('error', reject);
+         req.end();
       });
    }
 }

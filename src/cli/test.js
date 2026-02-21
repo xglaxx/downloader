@@ -4,7 +4,7 @@ const pross = process.argv;
 const url = (pross[2] || "");
 const output = (pross[3] || "./tmp/"+Date.now());
 (async () => {
-   if (!/https:\/\//.test(url)) throw url;
+   if (!/https:\/\//.test(url)) throw new Error("Isso não é uma url: "+url);
    
    const job = Downloader({ url, output });
    job.on("progress", ({ percent, eta, speed }) => {
