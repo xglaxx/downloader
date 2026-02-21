@@ -36,7 +36,7 @@ export default class Downloader extends EventEmitter {
          if (!/https:\/\//.test(this.url)) return Promise.reject({ message: "A url não foi identificado.", error: this });
          
          for (const tag of tagEvent) {
-            jobDl.on(tag, (res) => {
+            job.on(tag, (res) => {
                this.emit(tag, Object.assign({}, res, { url: this.url, output: job.path }));
             });
          }
