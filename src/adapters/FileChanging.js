@@ -34,11 +34,12 @@ export default class FileChanging {
    }
    
    async readjustFile(file = this.path) {
+      let ext, mimetype;
       let newName = null;
       const isFile = this.isExist(file);
       if (isFile) {
          const type = await fileTypeFromFile(file);
-         let ext = file.split('.').pop();
+         ext = file.split('.').pop();
          if (ext !== type.ext) {
             if (!supportedExtensions.has(ext)) {
                newName = file+"."+type.ext;
@@ -52,8 +53,9 @@ export default class FileChanging {
                file = newName;
             }
          }
+         mimetype = (type?.mime || ''); ext = (type?.ext || ext);
       }
-      return file;
+      return { file, ext, mimetype };
    }
    
    async changeFileName(newName, dir = this.path) {
