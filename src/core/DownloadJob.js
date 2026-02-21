@@ -39,6 +39,12 @@ export default class DownloadJob extends EventEmitter {
       this.abortController = new AbortController();
    }
    
+   logsConsole(message) {
+      process.stdout.clearLine(0);
+      process.stdout.cursorTo(0);
+      process.stdout.write(message.toString());
+   }
+   
    async start() {
       try {
          this.stateMachine.setState('preparing');
@@ -93,6 +99,7 @@ export default class DownloadJob extends EventEmitter {
       } finally {
          await this.storage.close();
       }
+      return this;
    }
    
    pause() {
