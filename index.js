@@ -25,7 +25,7 @@ export default class Downloader extends EventEmitter {
             const jobDl = DownloaderJob(Object.assign({}, this, job));
             for (const tag of tagEvent) {
                jobDl.on(tag, (res) => {
-                  this.emit(tag, Object.assign({}, res, job));
+                  this.emit(tag, Object.assign({}, res, { url: job.url, output: jobDl.path }));
                });
             }
             return () => jobDl.start().finally(() => this.sequenceDownloader.splice(1, index));
@@ -36,7 +36,7 @@ export default class Downloader extends EventEmitter {
          
          for (const tag of tagEvent) {
             jobDl.on(tag, (res) => {
-               this.emit(tag, Object.assign({}, res, { url: this.url, output: job.output }));
+               this.emit(tag, Object.assign({}, res, { url: this.url, output: job.path }));
             });
          }
          return job.start();
