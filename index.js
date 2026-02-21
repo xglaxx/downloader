@@ -1,3 +1,4 @@
+import EventEmitter from 'events';
 import DownloaderJob from './src/cli/index.js';
 export default class Downloader extends EventEmitter {
    constructor({ url, path, retryPolicy, concurrency }) {
