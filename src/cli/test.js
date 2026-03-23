@@ -8,7 +8,7 @@ const output = (pross[3] || "./tmp/"+Date.now());
    
    const job = Downloader({ url, output });
    job.on("progress", ({ percent, eta, speed }) => {
-      job.logsConsole(`Progresso: ${percent}% | ETA: ${eta.toFixed(1)}s | Velocidade: ${(speed / 1024 / 1024).toFixed(2)} MB/s `);
+      job.logsConsole(`Progresso: ${percent}% | ETA: ${eta.toFixed(1)}s | Velocidade: ${(speed / 1024 / 1024).toFixed(2)} MB/s\t`);
    });
    job.on("completed", (data) => {
       console.warn("\nDownload Concluido:", data);

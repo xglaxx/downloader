@@ -39,14 +39,13 @@ export default class FileStorage {
             }
          });
          if (signal?.aborted) {
-            stream.destroy();
             fileStream.destroy();
             reject(new Error('Aborted'));
          }
          
-         stream.on('error', reject);
+         stream.body.on('error', reject);
          fileStream.on('error', reject);
-         await pipeline(stream, progressStream, fileStream);
+         await pipeline(stream.body, progressStream, fileStream);
          resolve(this.path);
       });
    }

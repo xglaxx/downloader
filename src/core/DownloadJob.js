@@ -94,9 +94,8 @@ export default class DownloadJob extends EventEmitter {
          this.path = file;
          this.emit('completed', { file, ext, mimetype, ...this.rename.sizeBytesFile(this.path) });
       } catch (err) {
-         this.stateMachine.setState('failed');
          this.emit('error', err);
-         throw err;
+         this.stateMachine.setState('failed');
       } finally {
          await this.storage.close();
       }

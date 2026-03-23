@@ -1,4 +1,5 @@
-import https from 'https';
+import fs from 'fs';
+import fetch from 'node-fetch';
 import DataSource from '../ports/DataSource.js';
 export default class HttpDataSource extends DataSource {
    constructor(url) {
@@ -13,47 +14,42 @@ export default class HttpDataSource extends DataSource {
    
    async getUrlInfo(url, options = {}) {
       if (!url) url = this.url;
-      return new Promise((resolve, reject) => {
-         const req = https.request(url, { method: 'HEAD', ...options }, res => {
-            if (res.statusCode >= 400) {
-               reject(new Error(`HTTP ${res.statusCode}`));
-            }
-            
-            resolve(res);
-         });
-         req.on('error', reject);
-         req.end();
+      return fetch(url, { method: 'HEAD', ...options }).then((res) => {
+         if (res.status >= 400) {
+            return Promise.reject(new Error(`HTTP ${res.status}`));
+         }
+         
+         return Promise.resolve(res);
       });
    }
    
    async getMetadata() {
       return this.getUrlInfo().then(async (res) => {
-         let size = this.isNumber(res.headers['content-length']);
+         let size = this.isNumber(res.headers.get('content-length'));
          if (size) {
             return Promise.resolve({
                size: parseInt(size, 10),
-               etag: res.headers.etag,
-               acceptRanges: res.headers['accept-ranges'] === 'bytes'
+               etag: res.headers.get('etag'),
+               acceptRanges: res.headers.get('accept-ranges') === 'bytes'
             });
          } else {
             return this.getUrlInfo(false, {
                method: 'GET',
                headers: { Range: 'bytes=0-0' }
             }).then(async (range) => {
-               size = this.isNumber(range.headers['content-length']);
-               const contentRange = range.headers['content-range'];
+               size = this.isNumber(range.headers.get('content-length'));
+               const contentRange = range.headers.get('content-range');
+               const config = { etag: range.headers.get('etag'), acceptRanges: range.headers.get('accept-ranges') === 'bytes' }
                if (contentRange) {
                   const [_, match] = contentRange.match(/\/(\d+)$/) || [];
                   if (match) return Promise.resolve({
                      size: parseInt(this.isNumber(match), 10),
-                     etag: range.headers.etag,
-                     acceptRanges: range.headers['accept-ranges'] === 'bytes'
+                     ...config
                   });
                } else if (size) {
                   return Promise.resolve({
                      size: parseInt(size, 10),
-                     etag: range.headers.etag,
-                     acceptRanges: range.headers['accept-ranges'] === 'bytes'
+                     ...config
                   });
                }
                
@@ -64,15 +60,14 @@ export default class HttpDataSource extends DataSource {
    }
    
    async getStream(range) {
-      return new Promise((resolve, reject) => {
-         const headers = {};
-         if (range) headers.Range = `bytes=${range.start}-${range.end}`;
+      const headers = {};
+      if (range) headers.Range = `bytes=${range.start}-${range.end}`;
+      return fetch(this.url, headers).then((res) => {
+         if (res.status >= 400) {
+            return fetch(this.url, {});
+         }
          
-         const req = https.get(this.url, { headers }, res => {
-            resolve(res);
-         });
-         req.on('error', reject);
-         req.end();
+         return Promise.resolve(res);
       });
    }
 }

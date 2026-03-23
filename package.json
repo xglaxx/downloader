@@ -14,9 +14,9 @@
    "author": "",
    "license": "ISC",
    "dependencies": {
-      "file-type": "^21.3.0"
+      "file-type": "^21.3.0",
+      "node-fetch": "^3.3.2"
    },
-   "devDependencies": {},
    "repository": {
       "type": "git",
       "url": "git+https://github.com/xglaxx/downloader.git"

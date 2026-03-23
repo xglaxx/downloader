@@ -7,6 +7,7 @@ import HttpDataSource from '../adapters/HttpDataSource.js';
 import integrityValidator from '../core/IntegrityValidator.js';
 import FileMetadataStore from '../adapters/FileMetadataStore.js';
 const Downloader = ({ url, output, retryPolicy = 1, concurrency = 3 }) => {
+   url = url.replaceAll("\\", "");
    const renameChaning = new FileChanging(output);
    return new DownloadJob({
       output,
