@@ -40,11 +40,18 @@ export default class HttpDataSource extends DataSource {
                method: 'GET',
                headers: { Range: 'bytes=0-0' }
             }).then(async (range) => {
+               size = this.isNumber(range.headers['content-length']);
                const contentRange = range.headers['content-range'];
                if (contentRange) {
                   const [_, match] = contentRange.match(/\/(\d+)$/) || [];
                   if (match) return Promise.resolve({
                      size: parseInt(this.isNumber(match), 10),
+                     etag: range.headers.etag,
+                     acceptRanges: range.headers['accept-ranges'] === 'bytes'
+                  });
+               } else if (size) {
+                  return Promise.resolve({
+                     size: parseInt(size, 10),
                      etag: range.headers.etag,
                      acceptRanges: range.headers['accept-ranges'] === 'bytes'
                   });
