@@ -3,9 +3,10 @@ import fetch from 'node-fetch';
 import DataSource from '../ports/DataSource.js';
 
 export default class HttpDataSource extends DataSource {
-   constructor(url) {
+   constructor(url, options) {
       super();
       this.url = url;
+      this.headersOptions = options;
    }
    
    toNumber(val) {
@@ -14,6 +15,8 @@ export default class HttpDataSource extends DataSource {
    }
    
    async getUrlInfo(url = this.url , options = {}) {
+      const controller = new AbortController();
+      setTimeout(() => controller.abort(), 30 * 1000); 
       const Referer = new URL(url).origin;
       const headers = Object.assign({
          'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K)',
@@ -23,9 +26,10 @@ export default class HttpDataSource extends DataSource {
       options = Object.assign({
          method: 'GET',
          redirect: 'follow',
-      }, options, { headers });
+         signal: controller.signal
+       }, options, { headers });
       const res = await fetch(url, options);
-      if (res.status !== 200) {
+      if (res.status < 200 || res.status >= 300) {
          throw new Error(`HTTP ${res.status}`);
       }
       return res;
@@ -33,20 +37,6 @@ export default class HttpDataSource extends DataSource {
    
    async getMetadata() {
       try {
-         const res = await this.getUrlInfo();
-         const encoding = res.headers.get('content-encoding');
-         const sizeHeader = this.toNumber(res.headers.get('content-length'));
-         if (res.headers.get('x-cdn-success') === 'false') {
-            throw new Error('CDN bloqueou ou link expirou');
-         }
-         if (!encoding && sizeHeader >= 1) {
-            return {
-               size: sizeHeader,
-               etag: res.headers.get('etag'),
-               acceptRanges: res.headers.get('accept-ranges') === 'bytes'
-            };
-         }
-         // fallback com range
          const range = await this.getUrlInfo(this.url, {
             headers: { Range: 'bytes=0-0' }
          });
@@ -55,7 +45,9 @@ export default class HttpDataSource extends DataSource {
          }
          
          const contentRange = range.headers.get('content-range');
+         const sizeHeader = this.toNumber(range.headers.get('content-length'));
          const config = {
+            finalUrl: range.url,
             etag: range.headers.get('etag'),
             acceptRanges: range.headers.get('accept-ranges') === 'bytes'
          };
@@ -67,13 +59,12 @@ export default class HttpDataSource extends DataSource {
                   ...config
                };
             }
+         } else {
+            return {
+               size: sizeHeader,
+               ...config
+            };
          }
-         
-         const fallbackSize = this.toNumber(range.headers.get('content-length'));
-         return {
-            size: fallbackSize,
-            ...config
-         };
       } catch (err) {
          throw err;
       }
@@ -84,6 +75,9 @@ export default class HttpDataSource extends DataSource {
       if (range) headers.Range = `bytes=${range.start}-${range.end}`;
       
       const res = await this.getUrlInfo(this.url, { headers });
+      if (!res.body) {
+         throw new Error('Stream vazio!');
+      }
       return res.body;
    }
 }
