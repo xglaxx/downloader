@@ -1,6 +1,6 @@
 {
    "name": "downloader-file",
-   "version": "2.3.0-1",
+   "version": "2.3.3-1",
    "type": "module",
    "bin": {
       "downloader": "test.js"
