@@ -1,11 +1,11 @@
 export default class SegmentWorker {
    constructor({ segment, dataSource, storage, retryPolicy, signal, onProgress }) {
-      this.segment = segment;
-      this.dataSource = dataSource;
-      this.storage = storage;
-      this.retryPolicy = retryPolicy;
       this.signal = signal;
+      this.segment = segment;
+      this.storage = storage;
       this.onProgress = onProgress;
+      this.dataSource = dataSource;
+      this.retryPolicy = retryPolicy;
    }
    
    async run() {
@@ -16,7 +16,7 @@ export default class SegmentWorker {
             start: this.segment.start,
             end: this.segment.end
          });
-         await this.storage.writeStreamWithProgress(stream, this.segment.start, (bytes) => this.onProgress(bytes), this.signal);
+         await this.storage.writeStreamWithProgress(stream, this.segment, (bytes) => this.onProgress(bytes), this.signal);
       });
       this.segment.completed = true;
    }

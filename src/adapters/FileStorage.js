@@ -26,11 +26,17 @@ export default class FileStorage {
       await this.handle.truncate(size);
    }
    
-   async writeStreamWithProgress(stream, offset, onProgress, signal) {
-      const fileStream = fs.createWriteStream(this.path, {
-         flags: offset > 0 ? 'r+' : 'w',
-         start: offset
-      });
+   async writeStreamWithProgress(stream, { start: offset, end: endStream }, onProgress, signal) {
+      let fileStream;
+      if (offset === 0 && endStream === 0) {
+         fileStream = fs.createWriteStream(this.path);
+      } else {
+         fileStream = fs.createWriteStream(this.path, {
+            flags: offset > 0 ? 'r+' : 'w',
+            start: offset
+         });
+      }
+      
       const progressStream = new Transform({
          transform(chunk, encoding, callback) {
             if (onProgress) onProgress(chunk.length);

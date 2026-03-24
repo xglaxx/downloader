@@ -67,6 +67,7 @@ export default class DownloadJob extends EventEmitter {
             metadata = {
                size: remoteMeta.size,
                etag: remoteMeta.etag,
+               finalUrl: remoteMeta.finalUrl,
                segments: this._createSegments(remoteMeta.size)
             };
             await this.storage.prepare(metadata.size);
