@@ -1,9 +1,9 @@
 {
    "name": "downloader-file",
-   "version": "1.0.3-6",
+   "version": "2.3.0-1",
    "type": "module",
    "bin": {
-      "downloader": "src/cli/test.js"
+      "downloader": "test.js"
    },
    "description": "",
    "main": "index.js",

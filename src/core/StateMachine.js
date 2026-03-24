@@ -11,8 +11,10 @@ export default class StateMachine {
    setState(nextState) {
       const allowed = this.transitions[this.state] || [];
       if (!allowed.includes(nextState)) {
+         this.state = "failed";
          throw new Error(`Transição inválida: ${this.state} -> ${nextState}`);
+      } else {
+         this.state = nextState;
       }
-      this.state = nextState;
    }
 }

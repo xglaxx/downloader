@@ -27,27 +27,29 @@ export default class FileStorage {
    }
    
    async writeStreamWithProgress(stream, offset, onProgress, signal) {
-      return new Promise(async (resolve, reject) => {
-         const fileStream = fs.createWriteStream(this.path, {
-            flags: 'r+',
-            start: offset
-         });
-         const progressStream = new Transform({
-            transform(chunk, encoding, callback) {
-               if (onProgress) onProgress(chunk.length);
-               callback(null, chunk); // passa o chunk adiante
-            }
-         });
-         if (signal?.aborted) {
-            fileStream.destroy();
-            reject(new Error('Aborted'));
-         }
-         
-         stream.body.on('error', reject);
-         fileStream.on('error', reject);
-         await pipeline(stream.body, progressStream, fileStream);
-         resolve(this.path);
+      const fileStream = fs.createWriteStream(this.path, {
+         flags: offset > 0 ? 'r+' : 'w',
+         start: offset
       });
+      const progressStream = new Transform({
+         transform(chunk, encoding, callback) {
+            if (onProgress) onProgress(chunk.length);
+            callback(null, chunk); // passa o chunk adiante
+         }
+      });
+      if (signal) {
+         signal.addEventListener('abort', () => {
+            fileStream.destroy(new Error('Aborted'));
+         });
+      }
+      
+      try {
+         await pipeline(stream, progressStream, fileStream);
+         return this.path;
+      } catch(error) {
+         fileStream.destroy();
+         throw error;
+      }
    }
    
    async close() {

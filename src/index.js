@@ -1,11 +1,11 @@
 #!/usr/bin/env node
-import DownloadJob from '../core/DownloadJob.js';
-import FileStorage from '../adapters/FileStorage.js';
-import RetryPolicy from '../policies/RetryPolicy.js';
-import FileChanging from '../adapters/FileChanging.js';
-import HttpDataSource from '../adapters/HttpDataSource.js';
-import integrityValidator from '../core/IntegrityValidator.js';
-import FileMetadataStore from '../adapters/FileMetadataStore.js';
+import DownloadJob from './core/DownloadJob.js';
+import FileStorage from './adapters/FileStorage.js';
+import RetryPolicy from './policies/RetryPolicy.js';
+import FileChanging from './adapters/FileChanging.js';
+import HttpDataSource from './adapters/HttpDataSource.js';
+import integrityValidator from './core/IntegrityValidator.js';
+import FileMetadataStore from './adapters/FileMetadataStore.js';
 const Downloader = ({ url, output, retryPolicy = 1, concurrency = 3 }) => {
    url = url.replaceAll("\\", "");
    const renameChaning = new FileChanging(output);

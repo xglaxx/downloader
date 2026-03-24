@@ -1,6 +1,5 @@
 import fs from 'fs';
 import crypto from 'crypto';
-
 export default class IntegrityValidator {
    constructor(path) {
       this.path = path;
