@@ -14,8 +14,18 @@ export default class HttpDataSource extends DataSource {
    }
    
    async getUrlInfo(url = this.url , options = {}) {
-      const res = await fetch(url, { method: 'GET', ...options });
-      if (res.status >= 400) {
+      const Referer = new URL(url).origin;
+      const headers = Object.assign({
+         'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K)',
+         'Accept': '*/*',
+         Referer,
+      }, ("headers" in options ? options.headers : {}))
+      options = Object.assign({
+         method: 'GET',
+         redirect: 'follow',
+      }, options, { headers });
+      const res = await fetch(url, options);
+      if (res.status !== 200) {
          throw new Error(`HTTP ${res.status}`);
       }
       return res;
@@ -26,7 +36,10 @@ export default class HttpDataSource extends DataSource {
          const res = await this.getUrlInfo();
          const encoding = res.headers.get('content-encoding');
          const sizeHeader = this.toNumber(res.headers.get('content-length'));
-         if (!encoding && sizeHeader) {
+         if (res.headers.get('x-cdn-success') === 'false') {
+            throw new Error('CDN bloqueou ou link expirou');
+         }
+         if (!encoding && sizeHeader >= 1) {
             return {
                size: sizeHeader,
                etag: res.headers.get('etag'),
@@ -37,6 +50,10 @@ export default class HttpDataSource extends DataSource {
          const range = await this.getUrlInfo(this.url, {
             headers: { Range: 'bytes=0-0' }
          });
+         if (range.headers.get('x-cdn-success') === 'false') {
+            throw new Error('CDN bloqueou ou link expirou');
+         }
+         
          const contentRange = range.headers.get('content-range');
          const config = {
             etag: range.headers.get('etag'),
