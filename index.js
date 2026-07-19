@@ -19,7 +19,7 @@ export default class Downloader extends EventEmitter {
    
    async start() {
       const tagEvent = ["progress", "verified", "completed", "error"];
-      if (this.sequenceDownloader.length) {
+      if (this.sequenceDownloader.length > 0) {
          const active = new Set();
          while (this.sequenceDownloader.length) {
             const next = this.sequenceDownloader.shift();
